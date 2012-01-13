@@ -72,8 +72,10 @@ def findWho(body):
 
 
 def findType(body):
+    bb = body
+    bb = body.replace("VERVOER VAN HUISDIEREN", "HUISDIEREN")
     x = re.compile("Artikel van het type ([A-Z]+) (Heen en Terug|Enkel), geldig in (.+) klas van (.+) naar (.+) op (.+) voor de prijs van (.+) EUR.")
-    return x.findall(body)[0]
+    return x.findall(bb)[0]
     
 def getFrom(type):
 	return type[3].replace("ZONE ","").replace("LEUVEN","LVN").replace("BRUSSEL","BXL")
@@ -93,6 +95,12 @@ def findReferentie(subjectline):
         x = re.compile("N ([0-9]+) ")
         return x.findall(subjectline)[0]
 
+def getDateString(date):
+	dd= date[0:2]
+	mm = date[3:5]
+	yyyy = date[6:10]
+	return "%s%s%s" % (yyyy , mm, dd)
+
 def findBetaaldDoor(body):
     bet = -1
     res = ""
@@ -107,29 +115,42 @@ def findBetaaldDoor(body):
         if (bet == 3):
             return res        
 
-
+nb_er = 0
 for id in emails_from("ticketonline"):
 	body = quopri.decodestring(get_email(id))
 	subject = quopri.decodestring(get_subject(id))
-	opa=  findOPA(body)
-	bestel= findOrder(body).replace(" ", "")
-	who = findWho(body)
-	betaald = findBetaaldDoor(body)
-	price = findPrice(body)
-	type = findType(body)
-	ref = findReferentie(subject)
+	try:
+		opa=  findOPA(body)
+		bestel= findOrder(body).replace(" ", "")
+		who = findWho(body)
+		betaald = findBetaaldDoor(body)
+		price = findPrice(body)
+		type = findType(body)
+		ref = findReferentie(subject)
 	
-	suffix = ""
-	if (type[1] != "Enkel"):
-		suffix = "-T"
-	basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (type[5].replace("/",""), ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
-	f = open("%s.txt" % basename, "w")
-	f.write(body)
-	f.close()
-	import os
-	os.system("enscript -r -B -2 -o '%s.ps'  '%s.txt'" % (basename,basename))
-	os.system("ps2pdf '%s.ps' '%s.pdf'" % (basename,basename))
-	os.system("rm '%s.txt' '%s.ps'" % (basename, basename))
-	print [opa, bestel, who, betaald,price,type]
+		suffix = ""
+		if (type[1] != "Enkel"):
+			suffix = "-T"
+		basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (getDateString(type[5]), ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
+		f = open("%s.txt" % basename, "w")
+		f.write(body)
+		f.close()
+		import os
+		os.system("enscript -r -B -2 -o '%s.ps'  '%s.txt'" % (basename,basename))
+		os.system("ps2pdf '%s.ps' '%s.pdf'" % (basename,basename))
+		os.system("rm '%s.txt' '%s.ps'" % (basename, basename))
+		print [opa, bestel, who, betaald,price,type]
 	
-	
+	except:
+		print "ERROR !!!"
+		basename = "errors/%i" % nb_er
+		f = open("%s.txt" % basename, "w")
+		f.write(subject)
+		f.write("\n\n")
+		import sys
+		f.write("%s %s %s\n\n" % sys.exc_info())
+		f.write(body)
+		f.close()
+		nb_er = nb_er + 1
+
+		
