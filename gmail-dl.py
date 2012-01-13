@@ -122,12 +122,12 @@ for id in emails_from("ticketonline"):
 	suffix = ""
 	if (type[1] != "Enkel"):
 		suffix = "-T"
-	basename = "%s - NMBS - N%s - %s-%s%s %s" % (type[5].replace("/",""), ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
+	basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (type[5].replace("/",""), ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
 	f = open("%s.txt" % basename, "w")
 	f.write(body)
 	f.close()
 	import os
-	os.system("enscript -o '%s.ps'  '%s.txt'" % (basename,basename))
+	os.system("enscript -r -B -2 -o '%s.ps'  '%s.txt'" % (basename,basename))
 	os.system("ps2pdf '%s.ps' '%s.pdf'" % (basename,basename))
 	os.system("rm '%s.txt' '%s.ps'" % (basename, basename))
 	print [opa, bestel, who, betaald,price,type]
