@@ -21,6 +21,19 @@ print "unread: %i " % unreadcount
 def get_email(id):
         _, response = imap_server.fetch(id, '(UID BODY[TEXT])')
         return response[0][1]
+
+def get_headers(id):
+        _, response = imap_server.fetch(id, '(UID BODY[HEADER])')
+        from email.parser import HeaderParser
+        hp = HeaderParser()
+        return hp.parsestr(response[0][1])
+
+
+def get_date(id):
+        import datetime
+        _, response = imap_server.fetch(id, '(UID INTERNALDATE)')
+        return imaplib.Internaldate2tuple(response[0])
+        
                 
 def get_subject(id):
         _, response = imap_server.fetch(id, '(body[header.fields (subject)])')
@@ -119,6 +132,9 @@ nb_er = 0
 for id in emails_from("ticketonline"):
 	body = quopri.decodestring(get_email(id))
 	subject = quopri.decodestring(get_subject(id))
+#	headers = get_headers(id)
+        import time
+        msgdate = time.strftime("%Y%m%d",get_date(id))
 	try:
 		opa=  findOPA(body)
 		bestel= findOrder(body).replace(" ", "")
@@ -131,7 +147,7 @@ for id in emails_from("ticketonline"):
 		suffix = ""
 		if (type[1] != "Enkel"):
 			suffix = "-T"
-		basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (getDateString(type[5]), ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
+		basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (msgdate, ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
 		f = open("%s.txt" % basename, "w")
 		f.write(body)
 		f.close()
