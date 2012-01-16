@@ -5,7 +5,7 @@ import sys
 
 username=sys.argv[1]
 password=sys.argv[2]
-
+tsfx=sys.argv[3]
 
 imap_server = imaplib.IMAP4_SSL("imap.gmail.com",993)
 imap_server.login(username, password)
@@ -147,7 +147,7 @@ for id in emails_from("ticketonline"):
 		suffix = ""
 		if (type[1] != "Enkel"):
 			suffix = "-T"
-		basename = "tickets/%s - NMBS - N%s - %s-%s%s %s" % (msgdate, ref, getFrom(type), getTo(type), suffix ,type[6].replace(",","") )
+		basename = "tickets/%s - NMBS - N%s OPA%s - %s-%s%s %s %s" % (msgdate, ref, opa, getFrom(type), getTo(type), suffix ,type[6].replace(",",""), tsfx )
 		f = open("%s.txt" % basename, "w")
 		f.write(body)
 		f.close()
