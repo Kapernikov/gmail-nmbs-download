@@ -131,7 +131,7 @@ def findBetaaldDoor(body):
 nb_er = 0
 import csv
 
-c = csv.writer(open("tickets-%s.csv" % suffix, "wb"))
+c = csv.writer(open("tickets-%s.csv" % tsfx, "wb"))
 c.writerow(["date", "reference", "OPA", "FROM", "TO", "price", "who", "betaald", "type"])
 for id in emails_from("ticketonline"):
     body = quopri.decodestring(get_email(id))
@@ -147,10 +147,10 @@ for id in emails_from("ticketonline"):
         price = findPrice(body)
         type = findType(body)
         ref = findReferentie(subject)
-        c.writewrow([time.strftime("%m/%d/%Y", get_date(id)), ref, opa, getFrom(type), getTo(type), price, who, betaald, type ])
         suffix = ""
         if (type[1] != "Enkel"):
             suffix = "-T"
+        c.writewrow([time.strftime("%m/%d/%Y", get_date(id)), ref, opa, getFrom(type), getTo(type), price, who, betaald, type[1] ])
         basename = "tickets/%s - NMBS - N%s OPA%s - %s-%s%s %s %s" % (msgdate, ref, opa, getFrom(type), getTo(type), suffix , type[6].replace(",", ""), tsfx)
         f = open("%s.txt" % basename, "w")
         f.write(body)
