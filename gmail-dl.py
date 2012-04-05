@@ -150,7 +150,7 @@ for id in emails_from("ticketonline"):
         suffix = ""
         if (type[1] != "Enkel"):
             suffix = "-T"
-        c.writewrow([time.strftime("%m/%d/%Y", get_date(id)), ref, opa, getFrom(type), getTo(type), price, who, betaald, type[1] ])
+        c.writerow([time.strftime("%m/%d/%Y", get_date(id)), ref, opa, getFrom(type), getTo(type), price, who, betaald, type[1] ])
         basename = "tickets/%s - NMBS - N%s OPA%s - %s-%s%s %s %s" % (msgdate, ref, opa, getFrom(type), getTo(type), suffix , type[6].replace(",", ""), tsfx)
         f = open("%s.txt" % basename, "w")
         f.write(body)
@@ -173,4 +173,4 @@ for id in emails_from("ticketonline"):
         f.close()
         nb_er = nb_er + 1
 
-c.close()
+#c.close()
